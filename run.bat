@@ -1,0 +1,6 @@
+@echo off
+echo Compiling C++ backend...
+C:\winlibs\w64devkit\bin\g++.exe -std=c++17 -I.\backend .\backend\main.cpp .\backend\sqlite3.o -lws2_32 -o .\backend\server.exe
+echo Starting server...
+cd backend
+server.exe

@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FleetDesk | Fleet Management</title>
+
+<style>
+:root{--navy:#101b35;--navy2:#1b2b4d;--gold:#f5b82e;--bg:#f4f6fb;--card:#fff;--text:#18243b;--muted:#778198;--line:#e7ebf2;--green:#14836d;--red:#c34b48;--shadow:0 12px 34px rgba(24,39,75,.07)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,"Segoe UI",Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.layout{min-height:100vh;display:grid;grid-template-columns:250px 1fr}
+.sidebar{background:linear-gradient(160deg,var(--navy),#1b3158);color:white;padding:26px 18px;display:flex;flex-direction:column;gap:28px}
+.logo{font-size:24px;font-weight:850;letter-spacing:-1px;padding:0 10px}
+.logo span{color:var(--gold)}
+.logo small{display:block;font-size:10px;letter-spacing:2px;color:#aab7d0;font-weight:600;margin-top:3px}
+.nav{display:grid;gap:7px}
+.nav a{color:#bdc8dc;text-decoration:none;padding:12px 14px;border-radius:12px;display:flex;gap:12px;align-items:center;font-weight:600}
+.nav a:hover,.nav a.active{background:#ffffff18;color:#fff}
+.nav a.active{box-shadow:inset 3px 0 var(--gold)}
+.sidefoot{margin-top:auto;color:#9eabc3;font-size:12px;padding:10px}
+main{padding:30px clamp(18px,3vw,44px);max-width:1600px;width:100%;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px;flex-wrap:wrap}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted);font-weight:800}
+.top h1{font-size:30px;letter-spacing:-1px;margin:3px 0}
+.sub{color:var(--muted);margin:0}
+.datepill{background:#fff;border:1px solid var(--line);border-radius:30px;padding:10px 15px;color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
+.stat{padding:20px}
+.stathead{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:650}
+.statnum{font-size:30px;font-weight:850;letter-spacing:-1px;margin-top:12px}
+.statnote{font-size:12px;color:var(--muted)}
+.staticon{width:38px;height:38px;border-radius:12px;background:#fff4d8;display:grid;place-items:center;font-size:19px}
+.panel{padding:21px;margin-bottom:18px}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;flex-wrap:wrap}
+.panel h2{font-size:17px;letter-spacing:-.3px}
+.muted{color:var(--muted)}
+.btn{border:0;border-radius:10px;background:var(--navy);color:white;padding:11px 16px;font-weight:700}
+.btn:hover{background:var(--navy2)}
+.btn.gold{background:var(--gold);color:#1c2941}
+.btn.light{background:#f0f3f8;color:var(--navy)}
+.btn.danger{background:#fff0ef;color:var(--red)}
+.btn.small{padding:7px 11px;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.field label{display:block;font-size:12px;font-weight:750;color:#59657a;margin:0 0 6px}
+.field input,.field select,.field textarea,.filter{width:100%;border:1px solid #dfe4ec;background:#fff;border-radius:9px;padding:11px 12px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus,.filter:focus{border-color:#8c9fbd;box-shadow:0 0 0 3px #eaf0f8}
+.field.full{grid-column:1/-1}
+.field textarea{min-height:75px;resize:vertical}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.8px;padding:12px;border-bottom:1px solid var(--line)}
+td{padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px}
+tr:last-child td{border:0}
+.pill{display:inline-flex;padding:5px 10px;border-radius:30px;font-size:11px;font-weight:800}
+.pill.available{background:#e2f5ef;color:var(--green)}
+.pill.busy{background:#fff0e8;color:#b65c24}
+.vehiclegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.vehicle{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:white;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.vehicle:hover{transform:translateY(-4px);box-shadow:0 16px 35px rgba(24,39,75,.12)}
+.vehicle img{width:100%;height:190px;object-fit:cover;background:#e8edf4;display:block}
+.vehiclebody{padding:15px}
+.vtype{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:800}
+.vtitle{font-size:17px;font-weight:800;margin:3px 0}
+.vmeta{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0;color:var(--muted);font-size:11px}
+.vmeta span{background:#f2f4f8;padding:5px 8px;border-radius:7px}
+.vbottom{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.price{font-size:19px;font-weight:850}
+.price small{font-size:11px;color:var(--muted);font-weight:500}
+.bill{background:#fffdf4;border:1px dashed #e2c46c;border-radius:14px;padding:19px}
+.bill h3{margin:0 0 10px}
+.billrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #eee4c5}
+.billrow.total{font-size:20px;font-weight:850;border:0}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+.emptyicon{font-size:30px;margin-bottom:8px}
+.toast{position:fixed;right:22px;bottom:22px;padding:13px 17px;border-radius:12px;background:var(--navy);color:#fff;box-shadow:var(--shadow);display:none;z-index:20;max-width:360px}
+.toast.err{background:#9f302d}
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.bar>*{flex:1;min-width:150px}
+.hidden{display:none!important}
+@media(max-width:1050px){.vehiclegrid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{padding:15px;gap:12px}.logo{font-size:20px}.nav{display:flex;overflow:auto}.nav a{white-space:nowrap;padding:9px 11px;font-size:12px}.sidefoot{display:none}main{padding:20px 14px}.grid2{grid-template-columns:1fr}.vehiclegrid{grid-template-columns:1fr}.top h1{font-size:25px}}
+@media(max-width:430px){.stats{gap:9px}.stat{padding:13px}.statnum{font-size:24px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="logo">Fleet<span>Desk</span><small>RENTAL MANAGEMENT</small></div>
+ <nav class="nav" id="nav">
+  <a href="#dashboard" class="active">▦ <span>Dashboard</span></a>
+  <a href="#vehicles">🚘 <span>Fleet vehicles</span></a>
+  <a href="#booking">＋ <span>New booking</span></a>
+  <a href="#return">↩ <span>Vehicle return</span></a>
+  <a href="#customers">♙ <span>Customers</span></a>
+  <a href="#history">▤ <span>Booking history</span></a>
+ </nav>
+ <div class="sidefoot">● System connected<br>Data stored locally in rental.db</div>
+</aside>
+<main id="app"><div class="empty">Loading FleetDesk…</div></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let vehicles=[],customers=[],bookings=[],selectedVehicle='',lastBill=null;
+
+/* CATEGORY-WISE VEHICLE PHOTOS */
+const vehicleImages={
+ 'Car':'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1000',
+ 'SUV':'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=1000',
+ 'MUV':'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=1000',
+ 'Bike':'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1000',
+ 'Scooter':'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=1000',
+ 'Van':'https://images.unsplash.com/photo-1566933293069-b55c7f326dd4?w=1000',
+ 'Tempo Traveller':'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1000'
+};
+
+const fallbackImg=vehicleImages.Car;
+
+function toast(msg,err=false){
+ let t=$('#toast');
+ t.textContent=msg;
+ t.className='toast'+(err?' err':'');
+ t.style.display='block';
+ clearTimeout(toast.timer);
+ toast.timer=setTimeout(()=>t.style.display='none',3500);
+}
+
+async function api(path,body){
+ let r=await fetch(path,body?{
+ method:'POST',
+ headers:{'Content-Type':'application/json'},
+ body:JSON.stringify(body)
+ }:undefined);
+ let d=await r.json();
+ if(!r.ok)throw Error(d.error||'Request failed');
+ return d;
+}
+
+async function load(){
+ [vehicles,customers,bookings]=await Promise.all([
+ api('/api/vehicles'),
+ api('/api/customers'),
+ api('/api/bookings')
+ ]);
+}
+
+function header(title,sub,extra=''){
+ return `<div class="top">
+ <div>
+ <div class="eyebrow">FleetDesk workspace</div>
+ <h1>${title}</h1>
+ <p class="sub">${sub}</p>
+ </div>
+ <div class="datepill">● Live fleet overview</div>
+ ${extra}
+ </div>`;
+}
+
+function empty(msg){
+ return `<div class="empty"><div class="emptyicon">✦</div>${msg}</div>`;
+}
+
+function dashboard(){
+ let free=vehicles.filter(v=>v.available).length;
+ let rented=vehicles.length-free;
+ let revenue=bookings.reduce((s,b)=>s+Number(b.totalPaid??b.amount??0),0);
+ let active=bookings.filter(b=>b.active);
+
+ return `${header('Good day 👋','Here is what is happening with your rental business today.')}
+ <div class="stats">
+ <div class="stat"><div class="stathead">Total vehicles <span class="staticon">🚘</span></div><div class="statnum">${vehicles.length}</div><div class="statnote">Vehicles registered in fleet</div></div>
+ <div class="stat"><div class="stathead">Available now <span class="staticon">✓</span></div><div class="statnum">${free}</div><div class="statnote">Ready for new bookings</div></div>
+ <div class="stat"><div class="stathead">Currently rented <span class="staticon">🔑</span></div><div class="statnum">${rented}</div><div class="statnote">Active rental bookings</div></div>
+ <div class="stat"><div class="stathead">Recorded revenue <span class="staticon">₹</span></div><div class="statnum">${money(revenue)}</div><div class="statnote">Based on completed/active bookings</div></div>
+ </div>
+
+ <div class="grid2">
+ <section class="panel">
+ <div class="panelhead"><h2>Fleet availability</h2><a href="#vehicles">View fleet →</a></div>
+ ${vehicles.length?`<div class="tablewrap"><table><tr><th>Vehicle</th><th>Category</th><th>Status</th></tr>${vehicles.slice(0,7).map(v=>`<tr><td><b>${esc(v.brand)} ${esc(v.model)}</b></td><td>${esc(v.type)} · ${v.seats} seats</td><td><span class="pill ${v.available?'available':'busy'}">${v.available?'Available':'On rent'}</span></td></tr>`).join('')}</table></div>`:empty('No vehicles added yet.')}
+ </section>
+
+ <section class="panel">
+ <div class="panelhead"><h2>Active rentals</h2><a href="#return">Manage returns →</a></div>
+ ${active.length?active.slice(0,6).map(b=>`<div class="billrow"><div><b>${esc(b.customer)}</b><div class="muted">${esc(b.vehicle)} · ${b.days} day(s)</div></div><b>#${b.bookingId}</b></div>`).join(''):empty('There are no active rentals right now.')}
+ </section>
+ </div>
+
+ <section class="panel">
+ <div class="panelhead"><h2>Recent bookings</h2><a href="#history">See all →</a></div>
+ ${bookings.length?tableBookings(bookings.slice(0,5)):empty('Your recent bookings will appear here.')}
+ </section>`;
+}
+
+function tableBookings(rows){
+ return `<div class="tablewrap"><table>
+ <tr><th>Booking ID</th><th>Customer</th><th>Vehicle</th><th>Days</th><th>Amount</th><th>Status</th></tr>
+ ${rows.map(b=>`<tr><td>#${b.bookingId}</td><td>${esc(b.customer)}</td><td>${esc(b.vehicle)}</td><td>${b.days}</td><td>${money(b.totalPaid??b.amount)}</td><td><span class="pill ${b.active?'busy':'available'}">${b.active?'On rent':'Returned'}</span></td></tr>`).join('')}
+ </table></div>`;
+}
+
+/* UPDATED VEHICLE CARD WITH CATEGORY-WISE IMAGE */
+function vehicleCard(v){
+ const category=String(v.type||'Car').trim();
+ const image=v.image||vehicleImages[category]||fallbackImg;
+
+ return `<article class="vehicle">
+ <img
+ src="${esc(image)}"
+ alt="${esc(v.brand+' '+v.model)}"
+ loading="lazy"
+ onerror="this.onerror=null;this.src='${fallbackImg}'"
+ >
+ <div class="vehiclebody">
+ <div class="vtype">${esc(v.type)} · ${v.seats} seats</div>
+ <div class="vtitle">${esc(v.brand)} ${esc(v.model)}</div>
+ <div class="vmeta">
+ <span>⛽ ${esc(v.fuel||'—')}</span>
+ <span>⚙ ${esc(v.transmission||'—')}</span>
+ <span>${v.seats} passengers</span>
+ </div>
+ <div class="vbottom">
+ <div>
+ <div class="price">${money(v.ratePerDay)} <small>/ day</small></div>
+ <span class="pill ${v.available?'available':'busy'}">${v.available?'Available':'On rent'}</span>
+ </div>
+ ${v.available
+ ?`<button class="btn small gold" onclick="startBooking(${v.id})">Book now</button>`
+ :'<button class="btn small light" disabled>Unavailable</button>'}
+ </div>
+ </div>
+ </article>`;
+}
+
+function vehiclesPage(){
+ return `${header('Our fleet','Browse the fleet, check vehicle details and add vehicles.')}
+ <section class="panel">
+ <div class="panelhead"><h2>Add a vehicle</h2><span class="muted">Register cars, bikes, scooters and group vehicles</span></div>
+ <form id="vehicleForm" class="formgrid">
+ <div class="field"><label>Vehicle category *</label><select name="type"><option>Car</option><option>SUV</option><option>MUV</option><option>Bike</option><option>Scooter</option><option>Van</option><option>Tempo Traveller</option></select></div>
+ <div class="field"><label>Daily rent (₹) *</label><input name="ratePerDay" type="number" min="1" required placeholder="e.g. 1800"></div>
+ <div class="field"><label>Brand *</label><input name="brand" required placeholder="e.g. Toyota"></div>
+ <div class="field"><label>Model *</label><input name="model" required placeholder="e.g. Innova Crysta"></div>
+ <div class="field"><label>Seating capacity *</label><input name="seats" type="number" min="1" value="5" required></div>
+ <div class="field"><label>Fuel type</label><select name="fuel"><option>Petrol</option><option>Diesel</option><option>Electric</option><option>CNG</option><option>Hybrid</option></select></div>
+ <div class="field"><label>Transmission</label><select name="transmission"><option>Manual</option><option>Automatic</option><option>CVT</option><option>Not applicable</option></select></div>
+ <div class="field"><label>Vehicle image URL</label><input name="image" placeholder="Paste image URL (optional)"></div>
+ <div class="field full"><label>Description</label><input name="description" placeholder="Short vehicle description"></div>
+ <div class="field full"><button class="btn gold" type="submit">＋ Save vehicle to fleet</button></div>
+ </form>
+ </section>
+
+ <section class="panel">
+ <div class="panelhead">
+ <h2>All vehicles (${vehicles.length})</h2>
+ <div class="bar">
+ <input class="filter" id="vsearch" placeholder="Search brand or model">
+ <select class="filter" id="vfilter"><option value="">All categories</option>${['Car','SUV','MUV','Bike','Scooter','Van','Tempo Traveller'].map(t=>`<option>${t}</option>`).join('')}</select>
+ </div>
+ </div>
+ <div class="vehiclegrid" id="vehicleGrid">${vehicles.map(vehicleCard).join('')||empty('Add your first vehicle above.')}</div>
+ </section>`;
+}
+
+function startBooking(id){
+ selectedVehicle=String(id);
+ location.hash='#booking';
+}
+
+function bookingPage(){
+ let free=vehicles.filter(v=>v.available);
+ return `${header('Create a booking','Select a customer and an available vehicle to generate the rental bill.')}
+ <div class="grid2">
+ <section class="panel">
+ <h2 style="margin-bottom:17px">Booking details</h2>
+ <form id="bookingForm">
+ <div class="field" style="margin-bottom:14px">
+ <label>Choose vehicle *</label>
+ <select name="vehicleId" id="bookVehicle" required>
+ <option value="">Select vehicle</option>
+ ${free.map(v=>`<option value="${v.id}" ${String(v.id)===selectedVehicle?'selected':''}>${esc(v.brand)} ${esc(v.model)} · ${money(v.ratePerDay)}/day</option>`).join('')}
+ </select>
+ </div>
+ <div class="field" style="margin-bottom:14px">
+ <label>Customer *</label>
+ <select name="customerId" required>
+ <option value="">Select customer</option>
+ ${customers.map(c=>`<option value="${c.id}">${esc(c.name)} · ${esc(c.phone)}</option>`).join('')}
+ </select>
+ </div>
+ <div class="field" style="margin-bottom:17px">
+ <label>Rental days *</label>
+ <input name="days" type="number" min="1" value="1" required>
+ </div>
+ <button class="btn gold" type="submit" ${free.length&&customers.length?'':'disabled'}>Confirm booking</button>
+ ${!customers.length?'<p class="muted">Please register a customer first in the Customers section.</p>':''}
+ ${!free.length?'<p class="muted">No vehicles are currently available.</p>':''}
+ </form>
+ </section>
+ <section class="bill" id="estimate"><h3>Booking estimate</h3><p class="muted">Choose a vehicle and rental duration to view the estimate.</p></section>
+ </div>`;
+}
+
+function returnPage(){
+ let active=bookings.filter(b=>b.active);
+ return `${header('Vehicle return','Complete a return and calculate any late charges.')}
+ <div class="grid2">
+ <section class="panel">
+ <h2 style="margin-bottom:17px">Return details</h2>
+ <form id="returnForm">
+ <div class="field" style="margin-bottom:14px">
+ <label>Active booking *</label>
+ <select name="bookingId" required>
+ <option value="">Select booking</option>
+ ${active.map(b=>`<option value="${b.bookingId}">#${b.bookingId} · ${esc(b.customer)} · ${esc(b.vehicle)}</option>`).join('')}
+ </select>
+ </div>
+ <div class="field" style="margin-bottom:17px">
+ <label>Extra/late days</label>
+ <input name="extraDays" type="number" min="0" value="0" required>
+ </div>
+ <button class="btn gold" type="submit" ${active.length?'':'disabled'}>Return vehicle & generate bill</button>
+ </form>
+ ${!active.length?empty('No active bookings to return.'):''}
+ </section>
+ <section class="bill" id="returnBill">
+ <h3>Final invoice</h3>
+ <p class="muted">The final bill will appear here after return.</p>
+ </section>
+ </div>`;
+}
+
+function customersPage(){
+ return `${header('Customer directory','Keep customer contact and driving licence details in one place.')}
+ <div class="grid2">
+ <section class="panel">
+ <h2 style="margin-bottom:17px">Register customer</h2>
+ <form id="customerForm" class="formgrid">
+ <div class="field"><label>Full name *</label><input name="name" required></div>
+ <div class="field"><label>Phone number *</label><input name="phone" required inputmode="tel"></div>
+ <div class="field"><label>Email address</label><input name="email" type="email"></div>
+ <div class="field"><label>Driving licence number *</label><input name="license" required></div>
+ <div class="field full"><label>Address</label><textarea name="address"></textarea></div>
+ <div class="field full"><button class="btn gold">Save customer</button></div>
+ </form>
+ </section>
+
+ <section class="panel">
+ <div class="panelhead"><h2>Registered customers (${customers.length})</h2></div>
+ ${customers.length?`<div class="tablewrap"><table><tr><th>Name & contact</th><th>Licence</th><th>Email</th></tr>${customers.map(c=>`<tr><td><b>${esc(c.name)}</b><br><span class="muted">${esc(c.phone)}</span></td><td>${esc(c.license)}</td><td>${esc(c.email||'—')}</td></tr>`).join('')}</table></div>`:empty('No customers registered yet.')}
+ </section>
+ </div>
+
+ <section class="panel">
+ <h2 style="margin-bottom:12px">Customer addresses</h2>
+ ${customers.length?`<div class="tablewrap"><table><tr><th>Customer</th><th>Address</th></tr>${customers.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.address||'—')}</td></tr>`).join('')}</table></div>`:empty('Customer address details will appear here.')}
+ </section>`;
+}
+
+function historyPage(){
+ return `${header('Booking history','Track all rental transactions and their current status.')}
+ <section class="panel">
+ <div class="panelhead"><h2>All transactions (${bookings.length})</h2></div>
+ ${bookings.length?tableBookings(bookings):empty('No bookings have been created yet.')}
+ </section>`;
+}
+
+function route(){
+ let page=(location.hash||'#dashboard').slice(1);
+ document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+page));
+ let app=$('#app');
+
+ if(page==='vehicles'){app.innerHTML=vehiclesPage();bindVehicles()}
+ else if(page==='booking'){app.innerHTML=bookingPage();bindBooking()}
+ else if(page==='return'){app.innerHTML=returnPage();bindReturn()}
+ else if(page==='customers'){app.innerHTML=customersPage();bindCustomers()}
+ else if(page==='history'){app.innerHTML=historyPage()}
+ else{app.innerHTML=dashboard()}
+}
+
+function bindVehicles(){
+ $('#vehicleForm').onsubmit=async e=>{
+ e.preventDefault();
+ let f=new FormData(e.target),o=Object.fromEntries(f);
+ o.ratePerDay=Number(o.ratePerDay);
+ o.seats=Number(o.seats);
+ try{
+ await api('/api/vehicles',o);
+ toast('Vehicle added successfully.');
+ await refresh();
+ }catch(x){toast(x.message,true)}
+ };
+
+ const filter=()=>{
+ let q=$('#vsearch').value.toLowerCase(),t=$('#vfilter').value;
+ let list=vehicles.filter(v=>(!t||v.type===t)&&(v.brand+' '+v.model).toLowerCase().includes(q));
+ $('#vehicleGrid').innerHTML=list.map(vehicleCard).join('')||empty('No vehicles match your filters.');
+ };
+ $('#vsearch').oninput=filter;
+ $('#vfilter').onchange=filter;
+}
+
+function bindBooking(){
+ let form=$('#bookingForm');
+
+ let update=()=>{
+ let v=vehicles.find(x=>String(x.id)===form.vehicleId.value);
+ let d=Number(form.days.value)||0;
+
+ if(!v||d<1){
+ $('#estimate').innerHTML='<h3>Booking estimate</h3><p class="muted">Choose a vehicle and rental duration.</p>';
+ return;
+ }
+
+ let base=v.ratePerDay*d;
+ let fee=['Car','SUV','MUV','Van','Tempo Traveller'].includes(v.type)?500:0;
+
+ $('#estimate').innerHTML=`<h3>Estimated invoice</h3>
+ <div class="billrow"><span>${esc(v.brand)} ${esc(v.model)}</span><b>${d} day(s)</b></div>
+ <div class="billrow"><span>Rental (${money(v.ratePerDay)} × ${d})</span><b>${money(base)}</b></div>
+ ${fee?`<div class="billrow"><span>Vehicle service/insurance charge</span><b>${money(fee)}</b></div>`:''}
+ <div class="billrow total"><span>Total</span><span>${money(base+fee)}</span></div>
+ <p class="muted">Final amount is confirmed by the server.</p>`;
+ };
+
+ form.vehicleId.onchange=update;
+ form.days.oninput=update;
+ update();
+
+ form.onsubmit=async e=>{
+ e.preventDefault();
+ let o=Object.fromEntries(new FormData(form));
+ o.vehicleId=Number(o.vehicleId);
+ o.customerId=Number(o.customerId);
+ o.days=Number(o.days);
+
+ try{
+ let r=await api('/api/book',o);
+ toast('Booking #'+r.bookingId+' confirmed.');
+ selectedVehicle='';
+ await refresh();
+ }catch(x){toast(x.message,true)}
+ };
+}
+
+function bindReturn(){
+ $('#returnForm').onsubmit=async e=>{
+ e.preventDefault();
+ let o=Object.fromEntries(new FormData(e.target));
+ o.bookingId=Number(o.bookingId);
+ o.extraDays=Number(o.extraDays);
+
+ try{
+ let r=await api('/api/return',o);
+
+ $('#returnBill').innerHTML=`<h3>Return invoice</h3>
+ <div class="billrow"><span>Booking ID</span><b>#${o.bookingId}</b></div>
+ <div class="billrow"><span>Late fee</span><b>${money(r.lateFee)}</b></div>
+ <div class="billrow total"><span>Total paid</span><span>${money(r.totalPaid)}</span></div>
+ <p class="muted">Vehicle status updated to available.</p>`;
+
+ toast('Vehicle returned successfully.');
+ await load();
+ e.target.reset();
+ }catch(x){toast(x.message,true)}
+ };
+}
+
+function bindCustomers(){
+ $('#customerForm').onsubmit=async e=>{
+ e.preventDefault();
+ let o=Object.fromEntries(new FormData(e.target));
+
+ try{
+ await api('/api/customers',o);
+ toast('Customer registered successfully.');
+ await refresh();
+ }catch(x){toast(x.message,true)}
+ };
+}
+
+async function refresh(){
+ await load();
+ route();
+}
+
+window.addEventListener('hashchange',()=>refresh().catch(e=>toast(e.message,true)));
+
+load().then(route).catch(e=>{
+ $('#app').innerHTML=`<section class="panel">
+ <h2>Cannot connect to FleetDesk server</h2>
+ <p>${esc(e.message)}</p>
+ <p>Start fleet.exe from the backend folder, then refresh this page.</p>
+ </section>`;
+});
+</script>
+</body>
+</html>
