@@ -1,4 +1,3 @@
-
 #include "httplib.h"
 #include "json.hpp"
 #include <sqlite3.h>
@@ -335,7 +334,6 @@ public:
         return a;
     }
 
-    // NEW: Delete customer safely
     void deleteCustomer(int id) {
         lock_guard<mutex> lk(mu);
 
@@ -469,7 +467,8 @@ int main() {
         RentalManager mgr(db);
         httplib::Server svr;
 
-        svr.set_mount_point("/","../frontend");
+        // FIXED: Serves static files directly from ./frontend relative to /app working directory
+        svr.set_mount_point("/", "./frontend");
 
         auto handle=[](function<json(const json&)> fn) {
             return [fn](const httplib::Request& req,httplib::Response& res) {
@@ -517,7 +516,6 @@ int main() {
                 )}};
             }));
 
-        // NEW: Delete customer API
         svr.Delete(R"(/api/customers/(\d+))",
             [&](const httplib::Request& req, httplib::Response& res) {
                 try {
